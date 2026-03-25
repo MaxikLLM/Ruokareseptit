@@ -33,6 +33,23 @@ def create_recipe():
     recipes.add_recipe(title, ingredients, instruction, user_id)
 
     return redirect("/")
+
+@app.route("/edit_recipe/<int:recipe_id>")
+def edit_recipe(recipe_id):
+    recipe = recipes.get_recipe(recipe_id)
+    return render_template("edit_recipe.html", recipe=recipe)
+
+@app.route("/update_recipe", methods=["POST"])
+def update__recipe():
+    recipe_id = request.form["recipe_id"]
+    title = request.form["title"]
+    ingredients = request.form["ingredients"]
+    instruction = request.form["instruction"]
+
+    recipes.update_recipe(recipe_id, title, ingredients, instruction)
+
+    return redirect("/recipe/" + str(recipe_id))
+
 @app.route("/register")
 def register():
     return render_template("register.html")
