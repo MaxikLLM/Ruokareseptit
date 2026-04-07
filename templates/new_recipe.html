@@ -10,18 +10,21 @@
   <form action="/create_recipe" method="post">
     <p>
       Otsikko: <br />
-      <input type="text" name="title" />
+      <input type="text" name="title" maxlength="50" required/>
     </p>
     <p>
       Ainesosat: <br />
-      <textarea name="ingredients" rows="4" cols="40"></textarea>
+      <textarea name="ingredients" rows="4" cols="40" maxlength="400" required></textarea>
     </p>
     <p>
       Valmistusohje: <br />
-      <textarea name="instruction" rows="8" cols="60"></textarea>
+      <textarea name="instruction" rows="8" cols="60" maxlength="1000" required></textarea>
     </p>
     <input type="submit" value="Luo resepti" />
   </form>
+  <p>
+    <a href="/">Takaisin</a>
+  </p>
 </body>
 
 </html>
