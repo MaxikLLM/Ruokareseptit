@@ -80,8 +80,14 @@ def update__recipe():
         abort(403)
 
     title = request.form["title"]
+    if not title or len(title) > 50:
+        abort(403)
     ingredients = request.form["ingredients"]
+    if not ingredients or len(ingredients) > 400:
+        abort(403)
     instruction = request.form["instruction"]
+    if not instruction or len(instruction) > 1000:
+        abort(403)
 
     recipes.update_recipe(recipe_id, title, ingredients, instruction)
 
