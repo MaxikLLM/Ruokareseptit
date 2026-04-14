@@ -41,12 +41,14 @@ def show_recipe(recipe_id):
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
         abort(404)
-    return render_template("show_recipe.html", recipe=recipe)
+    classes = recipes.get_classes(recipe_id)
+    return render_template("show_recipe.html", recipe=recipe, classes=classes)
 
 @app.route("/new_recipe")
 def new_recipe():
     require_login()
-    return render_template("new_recipe.html")
+    classes = recipes.get_all_classes()
+    return render_template("new_recipe.html", classes=classes)
 
 @app.route("/create_recipe", methods=["POST"])
 def create_recipe():
@@ -63,7 +65,13 @@ def create_recipe():
         abort(403)
     user_id = session["user_id"]
 
-    recipes.add_recipe(title, ingredients, instruction, user_id)
+    classes = []
+    for entry in request.form.getlist("classes"):
+        if entry:
+            parts = entry.split(":")
+            classes.append((parts[0], parts[1]))
+
+    recipes.add_recipe(title, ingredients, instruction, user_id, classes)
 
     return redirect("/")
 
