@@ -5,6 +5,7 @@ import config
 import db
 import recipes
 import users
+import re
 
 app = Flask(__name__)
 app.secret_key = config.secret_key
@@ -42,7 +43,8 @@ def show_recipe(recipe_id):
     if not recipe:
         abort(404)
     classes = recipes.get_classes(recipe_id)
-    return render_template("show_recipe.html", recipe=recipe, classes=classes)
+    reviews = recipes.get_reviews(recipe_id)
+    return render_template("show_recipe.html", recipe=recipe, classes=classes, reviews=reviews)
 
 @app.route("/new_recipe")
 def new_recipe():
@@ -80,6 +82,27 @@ def create_recipe():
     recipes.add_recipe(title, ingredients, instruction, user_id, classes)
 
     return redirect("/")
+
+@app.route("/create_review", methods=["POST"])
+def create_review():
+    require_login()
+
+    grade = request.form["grade"]
+    if not re.search("^(10|[1-9])$", grade):
+        abort(403)
+    commentary = request.form["commentary"]
+    if not commentary or len(commentary) > 400:
+        abort(403)
+    recipe_id = request.form["recipe_id"]
+    recipe = recipes.get_recipe(recipe_id)
+    if not recipe:
+        abort(403)
+
+    user_id = session["user_id"]
+
+    recipes.add_review(recipe_id, user_id, grade, commentary)
+
+    return redirect("/recipe/" + str(recipe_id))
 
 @app.route("/edit_recipe/<int:recipe_id>")
 def edit_recipe(recipe_id):

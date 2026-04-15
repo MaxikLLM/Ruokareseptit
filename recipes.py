@@ -23,6 +23,24 @@ def add_recipe(title, ingredients, instruction, user_id, classes):
     for title, value in classes:
         db.execute(sql, [recipe_id, title, value])
 
+def add_review(recipe_id, user_id, grade, commentary):
+    sql = "INSERT INTO comments (recipe_id, user_id, grade, commentary) VALUES (?, ?, ?, ?)"
+
+    db.execute(sql, [recipe_id, user_id, grade, commentary])
+
+def get_reviews(recipe_id):
+    sql = """
+        SELECT comments.grade,
+               comments.commentary,
+               users.id AS user_id,
+               users.username
+        FROM comments
+        LEFT JOIN users ON comments.user_id = users.id
+        WHERE comments.recipe_id = ?
+        ORDER BY comments.id DESC
+    """
+    return db.query(sql, [recipe_id])
+
 def get_classes(recipe_id):
     sql = "SELECT title, value FROM recipe_classes WHERE recipe_id = ?"
     return db.query(sql, [recipe_id])

@@ -12,6 +12,15 @@ CREATE TABLE recipes (
     user_id INTEGER REFERENCES users
 );
 
+CREATE TABLE comments (
+    id INTEGER PRIMARY KEY,
+    recipe_id INTEGER REFERENCES recipes,
+    user_id INTEGER REFERENCES users,
+    grade INTEGER,
+    commentary TEXT
+);
+
+
 CREATE TABLE classes (
     id INTEGER PRIMARY KEY,
     title TEXT,
