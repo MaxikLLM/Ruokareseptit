@@ -11,7 +11,6 @@ INSERT INTO classes (title, value) VALUES ('Vaikeusaste', 'helppo');
 INSERT INTO classes (title, value) VALUES ('Vaikeusaste', 'keskitaso'); 
 INSERT INTO classes (title, value) VALUES ('Vaikeusaste', 'vaikea'); 
 
-INSERT INTO classes (title, value) VALUES ('Keittiö', 'kaikki');
 INSERT INTO classes (title, value) VALUES ('Keittiö', 'aasialainen');
 INSERT INTO classes (title, value) VALUES ('Keittiö', 'suomalainen');
 INSERT INTO classes (title, value) VALUES ('Keittiö', 'meksikolainen');
