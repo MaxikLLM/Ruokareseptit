@@ -185,7 +185,7 @@ def remove_images():
     return redirect("/images/" + str(recipe_id))
 
 @app.route("/update_recipe", methods=["POST"])
-def update__recipe():
+def update_recipe():
     require_login()
     recipe_id = request.form["recipe_id"]
     recipe = recipes.get_recipe(recipe_id)
@@ -204,6 +204,7 @@ def update__recipe():
     if not instruction or len(instruction) > 1000:
         abort(403)
 
+    all_classes = recipes.get_all_classes()
     classes = []
     for entry in request.form.getlist("classes"):
         if entry:
