@@ -12,12 +12,12 @@
 </p>
 {% endif %}
 {% for image in images %}
-<img src="/image/{{ image.id}}" />
+<img src="/image/{{ image.id}}" alt="Reseptin kuva" />
 {% endfor %}
 <p>
-  Ainesosat: {{ recipe.ingredients }}
+  <h4>Ainesosat</h4>{{ recipe.ingredients | show_lines }}
 </p>
-  Valmistusohje: {{ recipe.instruction }}
+  <h4>Valmistusohje</h4>{{ recipe.instruction | show_lines }}
 <ul>
   <li>Ilmoittaja <a href="/user/{{ recipe.user_id }}">{{ recipe.username }}</a></li>
 {% if classes %}
