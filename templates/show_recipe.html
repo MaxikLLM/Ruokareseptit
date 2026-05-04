@@ -17,21 +17,14 @@
 <p>
   Ainesosat: {{ recipe.ingredients }}
 </p>
-<p>
   Valmistusohje: {{ recipe.instruction }}
-</p>
-<p>
-  Ilmoittaja <a href="/user/{{ recipe.user_id }}">{{ recipe.username }}</a>
-</p>
+<ul>
+  <li>Ilmoittaja <a href="/user/{{ recipe.user_id }}">{{ recipe.username }}</a></li>
 {% if classes %}
-<p>
-  Luokat:
-  <ul>
     {% for class in classes %}
     <li>{{ class.title }}: {{ class.value }}</li>
     {% endfor %}
-  </ul>
-</p>
+</ul>
 {% endif %}
 <h3>Arvostelut</h3>
 <ul>
@@ -39,6 +32,7 @@
   <li>{{ review.commentary }}, {{ review.grade }}, <a href=/user/"{{ review.user_id }}">{{ review.username }}</a></li>
   {% endfor %}
 </ul>
+{% if session.user_id == recipe.user_id %}
 <h3>Uusi arvostelu</h3>
 <form action="/create_review" method="post">
   <div>
@@ -54,4 +48,5 @@
   <input type="hidden" name="recipe_id" value="{{ recipe.id }}"/>
   <input type="submit" value="Laita"/>
 </form>
+{% endif %}
 {% endblock %}
