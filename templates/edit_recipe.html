@@ -3,7 +3,7 @@
 {% block title %}Reseptin muokkaus{% endblock %}
 
 {% block content %}
-<h2>{{ recipe.title }}</h2>
+<h2>{{ recipe.title }} | Rating: {{ grades }} </h2>
 <h3>Reseptin muokkaus</h3>
 <form action="/update_recipe" method="post">
   <p>

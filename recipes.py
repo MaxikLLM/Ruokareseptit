@@ -41,6 +41,11 @@ def get_reviews(recipe_id):
     """
     return db.query(sql, [recipe_id])
 
+def get_grades(recipe_id):
+    sql = "SELECT AVG(grade) AS avg_grade FROM comments WHERE recipe_id = ?"
+    result = db.query(sql, [recipe_id])
+    return result[0][0] if result and result[0][0] is not None else 0
+
 def get_images(recipe_id):
     sql = "SELECT id FROM images WHERE recipe_id = ?"
     return db.query(sql, [recipe_id])
@@ -64,7 +69,7 @@ def get_classes(recipe_id):
 
 def get_recipes():
     sql = """SELECT recipes.id, recipes.title, users.id user_id, users.username,
-                COUNT(comments.id) comment_count
+             COUNT(comments.id) comment_count, COALESCE(AVG(comments.grade), 0) avg_grade
              FROM recipes JOIN users ON recipes.user_id = users.id
                           LEFT JOIN comments ON recipes.id = comments.recipe_id
              GROUP BY recipes.id
@@ -109,9 +114,13 @@ def remove_recipe(recipe_id):
     db.execute(sql, [recipe_id])
 
 def find_recipes(query):
-    sql = """SELECT id, title
+    sql = """SELECT recipes.id, recipes.title, COALESCE(AVG(comments.grade), 0) avg_grade
              FROM recipes
+             LEFT JOIN comments ON recipes.id = comments.recipe_id
              WHERE title LIKE ? OR ingredients LIKE ?
-             ORDER BY id DESC"""
+             GROUP BY recipes.id
+             ORDER BY recipes.id DESC"""
     like = "%" + query + "%"
     return db.query(sql, [like, like])
+
+

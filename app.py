@@ -39,7 +39,8 @@ def show_user(user_id):
     if not user:
         abort(404)
     recipes = users.get_recipes(user_id)
-    return render_template("show_user.html", user=user, recipes=recipes)
+    avg_grade = users.get_user_avg_grade(user_id)
+    return render_template("show_user.html", user=user, recipes=recipes, avg_grade=avg_grade)
 
 @app.route("/find_recipe")
 def find_recipe():
@@ -59,7 +60,8 @@ def show_recipe(recipe_id):
     classes = recipes.get_classes(recipe_id)
     reviews = recipes.get_reviews(recipe_id)
     images = recipes.get_images(recipe_id)
-    return render_template("show_recipe.html", recipe=recipe, classes=classes, reviews=reviews, images=images)
+    grades = recipes.get_grades(recipe_id)
+    return render_template("show_recipe.html", recipe=recipe, classes=classes, reviews=reviews, images=images, grades=grades)
 
 @app.route("/image/<int:image_id>")
 def show_image(image_id):
@@ -142,6 +144,7 @@ def edit_recipe(recipe_id):
     if recipe["user_id"] != session["user_id"]:
         abort(403)
 
+    grades = recipes.get_grades(recipe_id)
     all_classes = recipes.get_all_classes()
     classes = {}
     for my_class in all_classes:
@@ -149,7 +152,7 @@ def edit_recipe(recipe_id):
     for entry in recipes.get_classes(recipe_id):
         classes[entry["title"]] = entry["value"]
 
-    return render_template("edit_recipe.html", recipe=recipe, classes = classes, all_classes = all_classes)
+    return render_template("edit_recipe.html", recipe=recipe, classes = classes, all_classes = all_classes, grades = grades)
 
 @app.route("/images/<int:recipe_id>")
 def edit_images(recipe_id):
@@ -160,9 +163,10 @@ def edit_images(recipe_id):
     if recipe["user_id"] != session["user_id"]:
         abort(403)
 
+    grades = recipes.get_grades(recipe_id)
     images = recipes.get_images(recipe_id)
 
-    return render_template("images.html", recipe=recipe, images=images)
+    return render_template("images.html", recipe=recipe, images=images, grades=grades)
 
 @app.route("/add_image", methods=["POST"])
 def add_image():
@@ -247,12 +251,13 @@ def update_recipe():
 def remove_recipe(recipe_id):
     require_login()
     recipe = recipes.get_recipe(recipe_id)
+    grades = recipes.get_grades(recipe_id)
     if not recipe:
         abort(404)
     if recipe["user_id"] != session["user_id"]:
         abort(403)
     if request.method == "GET":
-        return render_template("remove_recipe.html", recipe=recipe)
+        return render_template("remove_recipe.html", recipe=recipe, grades=grades)
 
     if request.method == "POST":
         check_csrf()

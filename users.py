@@ -6,8 +6,25 @@ def get_user(user_id):
     return result[0] if result else None
 
 def get_recipes(user_id):
-    sql = "SELECT id, title FROM recipes WHERE user_id = ? ORDER BY id DESC"
-    return db.query(sql, [user_id]) 
+    sql = """
+    SELECT r.id,
+           r.title,
+           COALESCE(AVG(c.grade), 0) AS avg_grade
+    FROM recipes r
+    LEFT JOIN comments c ON c.recipe_id = r.id
+    WHERE r.user_id = ?
+    GROUP BY r.id
+    ORDER BY r.id DESC"""
+    return db.query(sql, [user_id])
+
+def get_user_avg_grade(user_id):
+    sql = """
+    SELECT COALESCE(AVG(c.grade), 0) AS user_avg_grade
+    FROM recipes r
+    LEFT JOIN comments c ON c.recipe_id = r.id
+    WHERE r.user_id = ?"""
+    result = db.query(sql, [user_id])
+    return result[0][0] if result and result[0][0] is not None else 0
 
 def create_user(username, password1):
     password_hash = generate_password_hash(password1)

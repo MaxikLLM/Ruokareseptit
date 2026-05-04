@@ -7,10 +7,13 @@
 <p>
   Käyttäjällä on yhteensä {{ recipes | count }} reseptia.
 </p>
+<p>
+  Käyttäjän reseptien yleinen arvosana {{ avg_grade }}.
+</p>
 <h3>Reseptit</h3>
 <ul>
   {% for recipe in recipes %}
-  <li><a href="/recipe/{{ recipe.id }}">{{ recipe.title }}</a></li>
+  <li><a href="/recipe/{{ recipe.id }}">{{ recipe.title }}</a> | {{ recipe.avg_grade }}</li>
   {% endfor %}
 </ul>
 {% endblock %}

@@ -18,7 +18,7 @@
 
 <ul>
   {% for recipe in results %}
-  <li><a href="/recipe/{{ recipe.id }}">{{ recipe.title }}</a></li>
+  <li><a href="/recipe/{{ recipe.id }}">{{ recipe.title }}</a> | Rating: {{ recipe.avg_grade|round(1) }}</li>
   {% endfor %}
 </ul>
 {% endif %}

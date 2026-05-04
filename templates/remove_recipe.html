@@ -3,7 +3,7 @@
 {% block title %}Reseptin poisto{% endblock %}
 
 {% block content %}
-<h2>{{ recipe.title }}</h2>
+<h2>{{ recipe.title }} | Rating: {{ grades }} </h2>
 <h3>Reseptin posto</h3>
 <p>Haluatko varmasti poistaa tämän reseptin?</p>
 <form action="/remove_recipe/{{ recipe.id }}" method="post">
