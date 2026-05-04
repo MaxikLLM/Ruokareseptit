@@ -7,22 +7,22 @@
 <h3>Reseptin muokkaus</h3>
 <form action="/update_recipe" method="post">
   <p>
-    Otsikko: <br />
-    <input type="text" name="title" value="{{ recipe.title }}" maxlength="50" required/>
+    <label for="title">Otsikko:</label> <br />
+    <input type="text" name="title" id="title" value="{{ recipe.title }}" maxlength="50" required/>
   </p>
   <p>
-    Ainesosat: <br />
-    <textarea name="ingredients" rows="4" cols="40" maxlength="400" required>{{ recipe.ingredients }}</textarea>
+    <label for="ingredients">Ainesosat:</label> <br />
+    <textarea name="ingredients" id="ingredients" rows="4" cols="40" maxlength="400" required>{{ recipe.ingredients }}</textarea>
   </p>
   <p>
-    Valmistusohje: <br />
-    <textarea name="instruction" rows="8" cols="60" maxlength="1000" required>{{ recipe.instruction }}</textarea>
+    <label for="instruction">Valmistusohje:</label> <br />
+    <textarea name="instruction" id="instruction" rows="8" cols="60" maxlength="1000" required>{{ recipe.instruction }}</textarea>
   </p>
   <input type="hidden" name="recipe_id" value="{{ recipe.id}}" />
   {% for class in all_classes %}
   <p>
-    {{ class }}: <br />
-    <select name="classes">
+    <label for="class{{ class }}">{{ class }}</label>: <br />
+    <select name="classes" id="class{{ class }}">
       <option value="">(valitse)</option>
     {% for option in all_classes[class] %}
       {% if classes[class] == option %}

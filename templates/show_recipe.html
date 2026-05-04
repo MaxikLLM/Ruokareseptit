@@ -36,13 +36,13 @@
 <h3>Uusi arvostelu</h3>
 <form action="/create_review" method="post">
   <div>
-    <label>Arvosana:</label><br>
-    <input type="text" name="grade" maxlength="2" size="4" pattern="^(10|[1-9])$" placeholder="1-10" required/>
+    <label for="grade">Arvosana:</label><br>
+    <input type="text" name="grade" id="grade" maxlength="2" size="4" pattern="^(10|[1-9])$" placeholder="1-10" required/>
   </div>
 
   <div>
-    <label>Kommentti:</label><br>
-    <textarea name="commentary" rows="4" cols="40" maxlength="400" required></textarea>
+    <label for="commentary">Kommentti:</label><br>
+    <textarea name="commentary" id="commentary" rows="4" cols="40" maxlength="400" required></textarea>
   </div>
 
   <input type="hidden" name="recipe_id" value="{{ recipe.id }}"/>

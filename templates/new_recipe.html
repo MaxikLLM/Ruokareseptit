@@ -6,21 +6,21 @@
 <h2>Uusi resepti</h2>
 <form action="/create_recipe" method="post">
   <p>
-    Otsikko: <br />
-    <input type="text" name="title" maxlength="50" required/>
+    <label for="title">Otsikko:</label> <br />
+    <input type="text" name="title" id="title" maxlength="50" required/>
   </p>
   <p>
-    Ainesosat: <br />
-    <textarea name="ingredients" rows="4" cols="40" maxlength="400" required></textarea>
+    <label for="ingredients">Ainesosat:</label> <br />
+    <textarea name="ingredients" id="ingredients" rows="4" cols="40" maxlength="400" required></textarea>
   </p>
   <p>
-    Valmistusohje: <br />
-    <textarea name="instruction" rows="8" cols="60" maxlength="1000" required></textarea>
+    <label for="instruction">Valmistusohje:</label> <br />
+    <textarea name="instruction" id="instruction" rows="8" cols="60" maxlength="1000" required></textarea>
   </p>
   {% for class in classes %}
   <p>
-    {{ class }}: <br />
-    <select name="classes">
+    <label for="class{{ class }}">{{ class }}</label>: <br />
+    <select name="classes" id="class{{ class }}">
       <option value="">(valitse)</option>
     {% for option in classes[class] %}
       <option value="{{ class }}:{{ option }}">{{ option }}</option>
