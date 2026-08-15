@@ -14,9 +14,8 @@
 {% for image in images %}
 <img src="/image/{{ image.id}}" alt="Reseptin kuva" />
 {% endfor %}
-<p>
   <h4>Ainesosat</h4>{{ recipe.ingredients | show_lines }}
-</p>
+
   <h4>Valmistusohje</h4>{{ recipe.instruction | show_lines }}
 <ul>
   <li>Ilmoittaja <a href="/user/{{ recipe.user_id }}">{{ recipe.username }}</a></li>
@@ -24,16 +23,16 @@
     {% for class in classes %}
     <li>{{ class.title }}: {{ class.value }}</li>
     {% endfor %}
-</ul>
 {% endif %}
-<h3>Arvostelut</h3>
+</ul>
+<h4>Arvostelut</h4>
 <ul>
   {% for review in reviews %}
-  <li>{{ review.commentary }}, {{ review.grade }}, <a href=/user/"{{ review.user_id }}">{{ review.username }}</a></li>
+  <li>{{ review.commentary }}, {{ review.grade }}, <a href="/user/{{ review.user_id }}">{{ review.username }}</a></li>
   {% endfor %}
 </ul>
-{% if session.user_id == recipe.user_id %}
-<h3>Uusi arvostelu</h3>
+{% if session.user_id and session.user_id != recipe.user_id %}
+<h4>Uusi arvostelu</h4>
 <form action="/create_review" method="post">
   <div>
     <label for="grade">Arvosana:</label><br>
