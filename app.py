@@ -16,7 +16,9 @@ app.secret_key = config.secret_key
 
 def require_login():
     if "user_id" not in session:
-        abort(403)
+        flash("VIRHE: user_id puuttuu")
+        return redirect("/")
+    return None
 
 def check_csrf():
     if "csrf_token" not in request.form:
@@ -39,7 +41,8 @@ def index():
 def show_user(user_id):
     user = users.get_user(user_id)
     if not user:
-        abort(404)
+        flash("VIRHE: käyttäjä puuttuu")
+        return redirect("/")
     recipes = users.get_recipes(user_id)
     avg_grade = users.get_user_avg_grade(user_id)
     return render_template("show_user.html", user=user, recipes=recipes, avg_grade=avg_grade)
@@ -58,7 +61,8 @@ def find_recipe():
 def show_recipe(recipe_id):
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     classes = recipes.get_classes(recipe_id)
     reviews = recipes.get_reviews(recipe_id)
     images = recipes.get_images(recipe_id)
@@ -67,9 +71,11 @@ def show_recipe(recipe_id):
 
 @app.route("/image/<int:image_id>")
 def show_image(image_id):
+    recipe_id = request.form["recipe_id"]
     image = recipes.get_image(image_id)
     if not image:
-        abort(404)
+        flash("VIRHE: kuva puuttuu")
+        return redirect("/images/" + str(recipe_id))
 
     response = make_response(bytes(image))
     response.headers.set("Content-Type", "image/png")
@@ -88,13 +94,16 @@ def create_recipe():
 
     title = request.form["title"]
     if not title or len(title) > 50:
-        abort(403)
+        flash("VIRHE: otsikko puuttuu tai pidempi kuin 50 merkkiä")
+        return redirect("/new_recipe")
     ingredients = request.form["ingredients"]
     if not ingredients or len(ingredients) > 400:
-        abort(403)
+        flash("VIRHE: ainesosat puutuvat tai pidempi kuin 400 merkkiä")
+        return redirect("/new_recipe")
     instruction = request.form["instruction"]
     if not instruction or len(instruction) > 1000:
-        abort(403)
+        flash("VIRHE: ohjet puutuvat tai pidempi kuin 1000 merkkiä")
+        return redirect("/new_recipe")
     user_id = session["user_id"]
 
     all_classes = recipes.get_all_classes()
@@ -104,15 +113,15 @@ def create_recipe():
         if entry:
             class_title, class_value = entry.split(":")
             if class_title not in all_classes:
-                abort(403)
+                flash("VIRHE: luokan otssiko on väärin")
+                return redirect("/new_recipe")
             if class_value not in all_classes[class_title]:
-                abort(403)
+                flash("VIRHE: luokan arvo on väärin")
+                return redirect("/new_recipe")
             classes.append((class_title, class_value))
 
-    recipes.add_recipe(title, ingredients, instruction, user_id, classes)
+    recipe_id = recipes.add_recipe(title, ingredients, instruction, user_id, classes)
 
-
-    recipe_id = db.last_insert_id()
     return redirect("/recipe/" + str(recipe_id))
 
 @app.route("/create_review", methods=["POST"])
@@ -120,16 +129,19 @@ def create_review():
     require_login()
     check_csrf()
 
+    recipe_id = request.form["recipe_id"]
     grade = request.form["grade"]
     if not re.search("^(10|[1-9])$", grade):
-        abort(403)
+        flash("VIRHE: väärin arvosana")
+        return redirect("/recipe/" + str(recipe_id))
     commentary = request.form["commentary"]
     if not commentary or len(commentary) > 400:
-        abort(403)
-    recipe_id = request.form["recipe_id"]
+        flash("VIRHE: kommentaari puuttuu tai liian pitkä(400 merkkiä)")
+        return redirect("/recipe/" + str(recipe_id))
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(403)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
 
     user_id = session["user_id"]
 
@@ -142,9 +154,11 @@ def edit_recipe(recipe_id):
     require_login()
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
 
     grades = recipes.get_grades(recipe_id)
     all_classes = recipes.get_all_classes()
@@ -161,9 +175,11 @@ def edit_images(recipe_id):
     require_login()
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
 
     grades = recipes.get_grades(recipe_id)
     images = recipes.get_images(recipe_id)
@@ -178,9 +194,11 @@ def add_image():
     recipe_id = request.form["recipe_id"]
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
 
     file = request.files["image"]
     if not file.filename.endswith(".png"):
@@ -203,10 +221,11 @@ def remove_images():
     recipe_id = request.form["recipe_id"]
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
-
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
     for image_id in request.form.getlist("image_id"):
         recipes.remove_image(recipe_id, image_id)
 
@@ -220,19 +239,24 @@ def update_recipe():
     recipe_id = request.form["recipe_id"]
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
 
     title = request.form["title"]
     if not title or len(title) > 50:
-        abort(403)
+        flash("VIRHE: otsikko puuttuu tai pidempi kuin 50 merkkiä")
+        return redirect("/edit_recipe/" + str(recipe_id))
     ingredients = request.form["ingredients"]
     if not ingredients or len(ingredients) > 400:
-        abort(403)
+        flash("VIRHE: ainesosat puutuvat tai pidempi kuin 400 merkkiä")
+        return redirect("/edit_recipe/" + str(recipe_id))
     instruction = request.form["instruction"]
     if not instruction or len(instruction) > 1000:
-        abort(403)
+        flash("VIRHE: ohjeet puutuvat tai pidempi kuin 1000 merkkiä")
+        return redirect("/edit_recipe/" + str(recipe_id))
 
     all_classes = recipes.get_all_classes()
     classes = []
@@ -240,9 +264,11 @@ def update_recipe():
         if entry:
             class_title, class_value = entry.split(":")
             if class_title not in all_classes:
-                abort(403)
+                flash("VIRHE: luokan otsikko on väärin")
+                return redirect("/edit_recipe/" + str(recipe_id))
             if class_value not in all_classes[class_title]:
-                abort(403)
+                flash("VIRHE: luokan arvo on väärin")
+                return redirect("/edit_recipe/" + str(recipe_id))
             classes.append((class_title, class_value))
 
     recipes.update_recipe(recipe_id, title, ingredients, instruction, classes)
@@ -255,9 +281,11 @@ def remove_recipe(recipe_id):
     recipe = recipes.get_recipe(recipe_id)
     grades = recipes.get_grades(recipe_id)
     if not recipe:
-        abort(404)
+        flash("VIRHE: resepti puuttuu")
+        return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        abort(403)
+        flash("VIRHE: et voi muokata muiden reseptit")
+        return redirect("/")
     if request.method == "GET":
         return render_template("remove_recipe.html", recipe=recipe, grades=grades)
 
@@ -276,6 +304,9 @@ def register():
 @app.route("/create", methods=["POST"])
 def create():
     username = request.form["username"]
+    if len(str(username)) < 1 :
+        flash("VIRHE: ei voi luoda tiliä ilman nimeä")
+        return redirect("/register")
     password1 = request.form["password1"]
     password2 = request.form["password2"]
     if password1 != password2:
