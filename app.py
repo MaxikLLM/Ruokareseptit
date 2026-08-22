@@ -71,11 +71,10 @@ def show_recipe(recipe_id):
 
 @app.route("/image/<int:image_id>")
 def show_image(image_id):
-    recipe_id = request.form["recipe_id"]
     image = recipes.get_image(image_id)
     if not image:
         flash("VIRHE: kuva puuttuu")
-        return redirect("/images/" + str(recipe_id))
+        return redirect("/images/" + str(image_id))
 
     response = make_response(bytes(image))
     response.headers.set("Content-Type", "image/png")
