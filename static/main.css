@@ -18,3 +18,7 @@ body {
   background-color: blue;
   color: white;
 }
+
+form {
+  margin-bottom: 3em;
+}
