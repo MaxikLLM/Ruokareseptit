@@ -91,17 +91,26 @@ def create_recipe():
     require_login()
     check_csrf()
 
-    title = request.form["title"]
-    if not title or len(title) > 50:
-        flash("VIRHE: otsikko puuttuu tai pidempi kuin 50 merkkiä")
+    title = request.form["title"].strip()
+    if not title:
+        flash("VIRHE: otsikko puuttuu")
         return redirect("/new_recipe")
-    ingredients = request.form["ingredients"]
-    if not ingredients or len(ingredients) > 400:
-        flash("VIRHE: ainesosat puutuvat tai pidempi kuin 400 merkkiä")
+    if len(title) > 50:
+        flash("VIRHE: otsikko on pidempi kuin 50 merkkiä")
         return redirect("/new_recipe")
-    instruction = request.form["instruction"]
-    if not instruction or len(instruction) > 1000:
-        flash("VIRHE: ohjet puutuvat tai pidempi kuin 1000 merkkiä")
+    ingredients = request.form["ingredients"].strip()
+    if not ingredients:
+        flash("VIRHE: ainesosat puutuvat")
+        return redirect("/new_recipe")
+    if len(ingredients) > 400:
+        flash("VIRHE: pidempi kuin 400 merkkiä")
+        return redirect("/new_recipe")
+    instruction = request.form["instruction"].strip()
+    if not instruction:
+        flash("VIRHE: ohjeet puutuvat")
+        return redirect("/new_recipe")
+    if len(instruction) > 1000:
+        flash("VIRHE: ohjeet ovat pidempi kuin 1000 merkkiä")
         return redirect("/new_recipe")
     user_id = session["user_id"]
 
@@ -133,9 +142,12 @@ def create_review():
     if not re.search("^(10|[1-9])$", grade):
         flash("VIRHE: väärin arvosana")
         return redirect("/recipe/" + str(recipe_id))
-    commentary = request.form["commentary"]
-    if not commentary or len(commentary) > 400:
-        flash("VIRHE: kommentaari puuttuu tai liian pitkä(400 merkkiä)")
+    commentary = request.form["commentary"].strip()
+    if not commentary:
+        flash("VIRHE: kommentti puuttuu")
+        return redirect("/recipe/" + str(recipe_id))
+    if len(commentary) > 400:
+        flash("VIRHE: kommentti on pidempi kuin 400 merkkiä")
         return redirect("/recipe/" + str(recipe_id))
     recipe = recipes.get_recipe(recipe_id)
     if not recipe:
@@ -177,7 +189,7 @@ def edit_images(recipe_id):
         flash("VIRHE: resepti puuttuu")
         return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        flash("VIRHE: et voi muokata muiden reseptit")
+        flash("VIRHE: et voi muokata muiden kuvat")
         return redirect("/")
 
     grades = recipes.get_grades(recipe_id)
@@ -196,7 +208,7 @@ def add_image():
         flash("VIRHE: resepti puuttuu")
         return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        flash("VIRHE: et voi muokata muiden reseptit")
+        flash("VIRHE: et voi lisätä muiden kuvat")
         return redirect("/")
 
     file = request.files["image"]
@@ -223,7 +235,7 @@ def remove_images():
         flash("VIRHE: resepti puuttuu")
         return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        flash("VIRHE: et voi muokata muiden reseptit")
+        flash("VIRHE: et voi poista muiden kuvat")
         return redirect("/")
     for image_id in request.form.getlist("image_id"):
         recipes.remove_image(recipe_id, image_id)
@@ -241,20 +253,29 @@ def update_recipe():
         flash("VIRHE: resepti puuttuu")
         return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        flash("VIRHE: et voi muokata muiden reseptit")
+        flash("VIRHE: et voi päivittää muiden reseptit")
         return redirect("/")
 
-    title = request.form["title"]
-    if not title or len(title) > 50:
-        flash("VIRHE: otsikko puuttuu tai pidempi kuin 50 merkkiä")
+    title = request.form["title"].strip()
+    if not title:
+        flash("VIRHE: otsikko puuttuu")
         return redirect("/edit_recipe/" + str(recipe_id))
-    ingredients = request.form["ingredients"]
-    if not ingredients or len(ingredients) > 400:
-        flash("VIRHE: ainesosat puutuvat tai pidempi kuin 400 merkkiä")
+    if len(title) > 50:
+        flash("VIRHE: otsikko on pidempi kuin 50 merkkiä")
         return redirect("/edit_recipe/" + str(recipe_id))
-    instruction = request.form["instruction"]
-    if not instruction or len(instruction) > 1000:
-        flash("VIRHE: ohjeet puutuvat tai pidempi kuin 1000 merkkiä")
+    ingredients = request.form["ingredients"].strip()
+    if not ingredients:
+        flash("VIRHE: ainesosat puutuvat")
+        return redirect("/edit_recipe/" + str(recipe_id))
+    if len(ingredients) > 400:
+        flash("VIRHE: pidempi kuin 400 merkkiä")
+        return redirect("/edit_recipe/" + str(recipe_id))
+    instruction = request.form["instruction"].strip()
+    if not instruction:
+        flash("VIRHE: ohjeet puutuvat")
+        return redirect("/edit_recipe/" + str(recipe_id))
+    if len(instruction) > 1000:
+        flash("VIRHE: ohjeet ovat pidempi kuin 1000 merkkiä")
         return redirect("/edit_recipe/" + str(recipe_id))
 
     all_classes = recipes.get_all_classes()
@@ -283,7 +304,7 @@ def remove_recipe(recipe_id):
         flash("VIRHE: resepti puuttuu")
         return redirect("/")
     if recipe["user_id"] != session["user_id"]:
-        flash("VIRHE: et voi muokata muiden reseptit")
+        flash("VIRHE: et voi poistaa muiden reseptit")
         return redirect("/")
     if request.method == "GET":
         return render_template("remove_recipe.html", recipe=recipe, grades=grades)
@@ -302,7 +323,7 @@ def register():
 
 @app.route("/create", methods=["POST"])
 def create():
-    username = request.form["username"]
+    username = request.form["username"].strip()
     if len(str(username)) < 1 :
         flash("VIRHE: ei voi luoda tiliä ilman nimeä")
         return redirect("/register")
